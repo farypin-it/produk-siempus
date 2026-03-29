@@ -749,6 +749,11 @@ input, button, select, textarea {
   </div>
 </div>
 
+<button id="btn-install-pwa" class="btn btn-warning fw-bold shadow-lg d-none" 
+    style="position: fixed; bottom: 80px; right: 20px; z-index: 1060; border-radius: 50px;">
+    <i class="fas fa-download me-2"></i>Install App
+</button>
+
 <button id="btn-ai-chat" class="btn btn-primary text-white d-none" onclick="toggleAIChat()" style="position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; border-radius: 50%; z-index: 1050; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);">
     <i class="fas fa-robot fa-lg"></i>
 </button>
@@ -2536,6 +2541,64 @@ function buildDatabaseContext() {
 // Memicu tombol Enter di Chat AI
 document.getElementById('ai-chat-input')?.addEventListener("keypress", function(event) { 
     if (event.key === "Enter") { event.preventDefault(); sendAIChat(); } 
+});
+
+
+// ==========================================================
+// 📲 LOGIKA TOMBOL INSTALL PWA (STANDAR PROFESIONAL)
+// ==========================================================
+let deferredPrompt; // Variabel untuk menyimpan izin install dari browser
+
+// 1. Tangkap event 'beforeinstallprompt' dari browser
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Cegah Chrome memunculkan popup otomatisnya sendiri
+    e.preventDefault();
+    
+    // Simpan event-nya agar bisa kita panggil nanti saat tombol diklik
+    deferredPrompt = e;
+    
+    // Munculkan tombol Install buatan kita
+    const installBtn = document.getElementById('btn-install-pwa');
+    if(installBtn) {
+        installBtn.classList.remove('d-none');
+        installBtn.classList.add('d-block');
+    }
+});
+
+// 2. Beri aksi pada tombol Install kita
+document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+    if (deferredPrompt) {
+        // Panggil popup install bawaan browser
+        deferredPrompt.prompt();
+        
+        // Tunggu jawaban dari user (Apakah mereka klik Install atau Cancel)
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('User menginstal PWA SiE-MPuS');
+        } else {
+            console.log('User membatalkan instalasi');
+        }
+        
+        // Reset izin dan sembunyikan tombol
+        deferredPrompt = null;
+        document.getElementById('btn-install-pwa').classList.remove('d-block');
+        document.getElementById('btn-install-pwa').classList.add('d-none');
+    }
+});
+
+// 3. Deteksi jika aplikasi sudah berhasil diinstal
+window.addEventListener('appinstalled', () => {
+    console.log('PWA berhasil diinstal!');
+    document.getElementById('btn-install-pwa').classList.add('d-none');
+    // Opsional: Munculkan SweetAlert Terima Kasih
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Aplikasi berhasil diinstal ke HP!',
+        showConfirmButton: false,
+        timer: 3000
+    });
 });
 
 
