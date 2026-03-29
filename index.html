@@ -749,11 +749,6 @@ input, button, select, textarea {
   </div>
 </div>
 
-<button id="btn-install-pwa" class="btn btn-warning fw-bold shadow-lg d-none" 
-    style="position: fixed; bottom: 80px; right: 20px; z-index: 1060; border-radius: 50px;">
-    <i class="fas fa-download me-2"></i>Install App
-</button>
-
 <button id="btn-ai-chat" class="btn btn-primary text-white d-none" onclick="toggleAIChat()" style="position: fixed; bottom: 20px; left: 20px; width: 50px; height: 50px; border-radius: 50%; z-index: 1050; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);">
     <i class="fas fa-robot fa-lg"></i>
 </button>
@@ -775,6 +770,27 @@ input, button, select, textarea {
             <input type="text" id="ai-chat-input" class="form-control form-control-sm" placeholder="Tanya AI...">
             <button class="btn btn-primary btn-sm" onclick="sendAIChat()" id="btn-send-ai"><i class="fas fa-paper-plane"></i></button>
         </div>
+    </div>
+</div>
+
+<div id="pwa-install-banner" class="shadow-lg bg-white" 
+    style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; border-radius: 20px 20px 0 0; padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); transform: translateY(150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: space-between;">
+    
+    <div class="d-flex align-items-center gap-3">
+        <img id="pwa-banner-logo" src="./imgsiempus.png" alt="Logo" 
+            style="width: 45px; height: 45px; border-radius: 12px; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div>
+            <h6 id="pwa-banner-title" class="mb-0 fw-bold text-dark" style="font-size: 14px;">SiE-MPuS</h6>
+            <small class="text-muted" style="font-size: 11px;">Akses lebih cepat di layar utama</small>
+        </div>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">
+        <button id="btn-pwa-install" class="btn btn-primary btn-sm fw-bold rounded-pill px-3 shadow-sm">Install</button>
+        <button id="btn-pwa-close" class="btn btn-light btn-sm rounded-circle text-muted" 
+            style="width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 </div>
 
@@ -2543,59 +2559,78 @@ document.getElementById('ai-chat-input')?.addEventListener("keypress", function(
     if (event.key === "Enter") { event.preventDefault(); sendAIChat(); } 
 });
 
-
 // ==========================================================
-// 📲 LOGIKA TOMBOL INSTALL PWA (STANDAR PROFESIONAL)
+// 📲 LOGIKA BANNER INSTALL PWA PROFESIONAL
 // ==========================================================
-let deferredPrompt; // Variabel untuk menyimpan izin install dari browser
+let deferredPrompt;
 
-// 1. Tangkap event 'beforeinstallprompt' dari browser
+// 1. Tangkap izin instalasi dari browser
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Cegah Chrome memunculkan popup otomatisnya sendiri
+    // Mencegah popup default browser (mini-infobar)
     e.preventDefault();
-    
-    // Simpan event-nya agar bisa kita panggil nanti saat tombol diklik
     deferredPrompt = e;
     
-    // Munculkan tombol Install buatan kita
-    const installBtn = document.getElementById('btn-install-pwa');
-    if(installBtn) {
-        installBtn.classList.remove('d-none');
-        installBtn.classList.add('d-block');
+    // Cek apakah user sebelumnya sudah menutup banner ini
+    if (sessionStorage.getItem('pwa_banner_closed')) {
+        return; // Jika sudah pernah ditutup, jangan tampilkan lagi
     }
+
+    // Update teks banner sesuai ID tenant/sekolah saat ini
+    const urlParamsPWA = new URLSearchParams(window.location.search);
+    let tenantIdPWA = urlParamsPWA.get('id') || localStorage.getItem('siempus_tenant_id') || 'Demo';
+    
+    document.getElementById('pwa-banner-title').innerText = "SiE-MPuS " + tenantIdPWA.toUpperCase();
+    
+    // Update logo jika logo sekolah sudah diload dari backend
+    if (typeof globalLogoUrl !== 'undefined' && globalLogoUrl !== '') {
+        document.getElementById('pwa-banner-logo').src = globalLogoUrl;
+    }
+
+    // Munculkan banner dengan animasi meluncur dari bawah
+    setTimeout(() => {
+        const banner = document.getElementById('pwa-install-banner');
+        if(banner) banner.style.transform = 'translateY(0)';
+    }, 1500); // Tunda 1.5 detik biar aplikasinya loading dulu
 });
 
-// 2. Beri aksi pada tombol Install kita
-document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+// 2. Aksi jika tombol "Install" diklik
+document.getElementById('btn-pwa-install').addEventListener('click', async () => {
     if (deferredPrompt) {
-        // Panggil popup install bawaan browser
+        // Panggil sistem popup install Android/Browser
         deferredPrompt.prompt();
         
-        // Tunggu jawaban dari user (Apakah mereka klik Install atau Cancel)
+        // Tunggu respon user
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-            console.log('User menginstal PWA SiE-MPuS');
-        } else {
-            console.log('User membatalkan instalasi');
+            console.log('User menginstal aplikasi');
         }
         
-        // Reset izin dan sembunyikan tombol
+        // Sembunyikan banner ke bawah
+        document.getElementById('pwa-install-banner').style.transform = 'translateY(150%)';
         deferredPrompt = null;
-        document.getElementById('btn-install-pwa').classList.remove('d-block');
-        document.getElementById('btn-install-pwa').classList.add('d-none');
     }
 });
 
-// 3. Deteksi jika aplikasi sudah berhasil diinstal
+// 3. Aksi jika tombol "X" (Tutup) diklik
+document.getElementById('btn-pwa-close').addEventListener('click', () => {
+    // Sembunyikan banner
+    document.getElementById('pwa-install-banner').style.transform = 'translateY(150%)';
+    
+    // Simpan ingatan ke browser agar tidak muncul lagi saat pindah halaman
+    sessionStorage.setItem('pwa_banner_closed', 'true');
+});
+
+// 4. Deteksi jika aplikasi sudah sukses terinstal
 window.addEventListener('appinstalled', () => {
-    console.log('PWA berhasil diinstal!');
-    document.getElementById('btn-install-pwa').classList.add('d-none');
-    // Opsional: Munculkan SweetAlert Terima Kasih
+    // Sembunyikan banner permanen
+    document.getElementById('pwa-install-banner').style.transform = 'translateY(150%)';
+    
+    // Tampilkan notifikasi sukses
     Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: 'Aplikasi berhasil diinstal ke HP!',
+        title: 'Aplikasi berhasil ditambahkan ke Layar Utama!',
         showConfirmButton: false,
         timer: 3000
     });
