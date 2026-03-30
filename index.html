@@ -114,6 +114,23 @@ input, button, select, textarea {
       .nav-link.active { background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); color: white; box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); }
       
       .glass-card { background: white; border-radius: 16px; border: none; box-shadow: var(--shadow-soft); margin-bottom: 20px; }
+
+      /* Mencegah kolom tombol dan tanggal terlipat/turun ke bawah */
+.nowrap-cell {
+    white-space: nowrap !important;
+    width: 1%; /* Biar lebar kolomnya menyesuaikan isinya aja */
+}
+
+/* Memotong teks panjang maksimal 2 baris dengan titik-titik (...) */
+.text-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px; /* Lebar kira-kira 20 digit huruf */
+    white-space: normal;
+}
       
       @media (max-width: 768px) {
         .sidebar { left: -260px; } 
@@ -233,6 +250,49 @@ input, button, select, textarea {
     .mobile-header, .mobile-bottom-nav { display: none !important; }
 }
 
+
+/* --- EFEK GLASSMORPHISM & ANIMASI MELAYANG --- */
+      .glass-morphism-card {
+          background: rgba(255, 255, 255, 0.55) !important; /* Dibuat lebih transparan biar efek kacanya terasa */
+          backdrop-filter: blur(25px) saturate(150%) !important; 
+          -webkit-backdrop-filter: blur(25px) saturate(150%) !important;
+          border: 1px solid rgba(255, 255, 255, 0.7) !important;
+      }
+      
+      /* Bola Cahaya Warna-warni di Belakang Kaca */
+      .color-blob {
+          position: absolute;
+          filter: blur(80px);
+          z-index: 0;
+          border-radius: 50%;
+          animation: blob-bounce 10s infinite alternate ease-in-out;
+      }
+      .blob-biru { width: 350px; height: 350px; background: #4361ee; top: -50px; left: -50px; opacity: 0.6; }
+      .blob-pink { width: 300px; height: 300px; background: #f72585; bottom: -50px; right: -50px; opacity: 0.5; animation-delay: -4s; }
+      
+      @keyframes blob-bounce {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(50px, 50px) scale(1.2); }
+      }
+
+      /* Rumus Melayang Lurus Naik-Turun (Tanpa geser kiri) */
+      @keyframes float-inline {
+          0% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0); }
+      }
+
+      /* Animasi Logo Melayang (Diperbaiki agar tidak oleng) */
+      .anim-float-1 { animation: float-inline 3s ease-in-out infinite; }
+      .anim-float-2 { animation: float-inline 4s ease-in-out infinite; animation-delay: 1.5s; }
+
+      /* Animasi Tombol HP Melayang & Berdenyut */
+      @keyframes pulse-float {
+          0% { transform: translateY(0) scale(1); box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
+          50% { transform: translateY(-8px) scale(1.03); box-shadow: 0 15px 25px rgba(67, 97, 238, 0.6); }
+          100% { transform: translateY(0) scale(1); box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3); }
+      }
+      .btn-float-mobile { animation: pulse-float 2.5s infinite ease-in-out; }
   </style>
     
   </head>
@@ -240,78 +300,96 @@ input, button, select, textarea {
 
     <div id="overlay" class="overlay"></div>
 
-   <div id="login-app" class="d-none align-items-center justify-content-center vh-100" style="background-size: cover; background-position: center;">
-      <div class="card login-card shadow-lg p-0" style="width: 420px; max-width: 90%; position: relative; overflow: visible !important;">
-        <div class="floating-logo-container">
-            <center>
-                <img id="login-logo-center" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgKQaKy8lB3IXcmsdcPpZUorKzNCnUUlT8mEBvkDgnozpJRpbHdld-uSH0fWWOActJnaHg078VQ3GG5vwtr2ydeDh_3O_r5gnEOpcKmVE4-tiz9Blkb4mjVcToRFGJaODrYq_t4V0-8xB_lppMvuIko0OY0bXPrSK7fbMI_vLVGyBbvgUIRD4lI5P4ucoWw/s80/Logo%20SiE-MPus%20baru%20ok.png" style="width:50px" crossorigin="anonymous">
-            </center>
-        </div>
-        <div class="card-body px-4 pb-4 pt-5 mt-4">
-          <div class="text-center mb-4">
-            <h4 class="fw-bold mb-1" id="login-school-name" style="color: #4361ee;">SIE-MPUS</h4>
-            <small class="text-muted">Sistem E-Manajemen Perpustakaan Sekolah<br> Dilengkapi Fitur AI</small>
+   
+  <div id="login-app" class="d-none align-items-center justify-content-center vh-100 position-relative overflow-hidden" style="background-size: cover; background-position: center; transition: background 0.5s ease-in-out; z-index: 1;">
+      
+      <div class="color-blob blob-biru"></div>
+      <div class="color-blob blob-pink"></div>
 
-            <center>
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgKQaKy8lB3IXcmsdcPpZUorKzNCnUUlT8mEBvkDgnozpJRpbHdld-uSH0fWWOActJnaHg078VQ3GG5vwtr2ydeDh_3O_r5gnEOpcKmVE4-tiz9Blkb4mjVcToRFGJaODrYq_t4V0-8xB_lppMvuIko0OY0bXPrSK7fbMI_vLVGyBbvgUIRD4lI5P4ucoWw/s80/Logo%20SiE-MPus%20baru%20ok.png" class="width:50px">
-             </center>
+      <div class="card login-card glass-morphism-card shadow-lg p-0" style="max-width: 900px; width: 95%; border-radius: 20px; overflow: hidden; z-index: 2;">
+        <div class="row g-0" style="min-height: 550px;">
+          
+          <div class="col-md-6 d-flex flex-column justify-content-between p-4 p-md-5 text-center bg-white bg-opacity-50 position-relative" id="panel-left-mobile">
+            <div>
+              <div class="d-flex justify-content-center align-items-center gap-4 mb-3 mt-3 mt-md-0 w-100">
+                  <img id="login-logo-instansi" class="anim-float-1" src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" style="width:80px; height:80px; object-fit:contain;" crossorigin="anonymous">
+                  <img id="login-logo-sekolah" class="anim-float-2" src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" style="width:80px; height:80px; object-fit:contain;" crossorigin="anonymous">
+              </div>
+              <h5 class="fw-bold mb-0 text-dark text-uppercase" id="login-instansi-name">DINAS PENDIDIKAN</h5>
+              <h4 class="fw-bold text-primary mb-2 text-uppercase" id="login-school-name">NAMA SEKOLAH</h4>
+              <p class="small text-muted mb-4 px-2" id="login-alamat-text">Alamat sekolah akan tampil di sini...</p>
+              
+              <hr class="w-50 mx-auto border-secondary opacity-25">
+              
+              <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgKQaKy8lB3IXcmsdcPpZUorKzNCnUUlT8mEBvkDgnozpJRpbHdld-uSH0fWWOActJnaHg078VQ3GG5vwtr2ydeDh_3O_r5gnEOpcKmVE4-tiz9Blkb4mjVcToRFGJaODrYq_t4V0-8xB_lppMvuIko0OY0bXPrSK7fbMI_vLVGyBbvgUIRD4lI5P4ucoWw/s80/Logo%20SiE-MPus%20baru%20ok.png" style="width:45px; margin-bottom:5px;">
+              <h5 class="text-secondary mb-1">Sistem E-Manajemen Perpustakaan Sekolah</h5>
+              <p class="small text-muted mb-4 px-2">Dilengkapi Fitur AI</p>
+
+              <div class="marquee-container small fw-bold text-primary mb-3">
+                <div id="login-running-text" class="marquee-content">Sistem E-Manajemen Perpustakaan Sekolah Terpadu.</div>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary btn-float-mobile rounded-pill fw-bold shadow-lg d-md-none mb-4 py-3 text-uppercase" onclick="switchLoginPanel('right')" style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); letter-spacing: 1px;">
+              Masuk Aplikasi <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+
+            <footer class="small text-muted mt-auto">
+              <span id="login-footer-text" class="d-block fw-bold mb-1">© 2026 SiE-MPuS</span>
+              Powered by <a href='https://www.farypin-inovasiteknologi.com' class="fw-bold text-decoration-none" style='color: var(--primary-color);'>PT Farypin Inovasi Teknologi</a>
+            </footer>
           </div>
-          <div class="marquee-container mb-3 small fw-bold text-primary">
-    <div id="login-running-text" class="marquee-content">Selamat datang di aplikasi Sistem E-Manajemen Perpustakaan Sekolah.</div>
-</div>
-          <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();">
-            <div class="mb-3">
-                <label for="uName" class="form-label small fw-bold text-muted">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-primary"></i></span>
-                    <input type="text" class="form-control border-start-0" id="uName" placeholder="Masukkan Username" required>
-                </div>
+
+          <div class="col-md-6 d-none d-md-flex flex-column justify-content-center p-4 p-md-5 bg-white bg-opacity-75 shadow-sm" id="panel-right-mobile">
+            <button class="btn btn-light btn-sm text-start mb-4 d-md-none fw-bold text-secondary border shadow-sm rounded-pill px-3 align-self-start" onclick="switchLoginPanel('left')">
+              <i class="fas fa-arrow-left me-2"></i> Kembali
+            </button>
+            
+            <div class="text-center mb-4">
+               <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgKQaKy8lB3IXcmsdcPpZUorKzNCnUUlT8mEBvkDgnozpJRpbHdld-uSH0fWWOActJnaHg078VQ3GG5vwtr2ydeDh_3O_r5gnEOpcKmVE4-tiz9Blkb4mjVcToRFGJaODrYq_t4V0-8xB_lppMvuIko0OY0bXPrSK7fbMI_vLVGyBbvgUIRD4lI5P4ucoWw/s80/Logo%20SiE-MPus%20baru%20ok.png" style="width:55px; margin-bottom:10px;">
+               <h4 class="fw-bold text-dark mb-1">Silakan Login</h4>
+               <p class="text-muted small">Akses Sistem Administrator</p>
             </div>
-            <div class="mb-4">
-                <label for="uPass" class="form-label small fw-bold text-muted">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-primary"></i></span>
-                    <input type="password" class="form-control border-start-0 border-end-0" id="uPass" placeholder="Masukkan Password" required>
-                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePassword()">
-                        <i class="fas fa-eye" id="eyeIcon"></i>
-                    </button>
-                </div>
-            </div>
-            <button type="submit" id="btnLogin" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm hover-scale">MASUK DASHBOARD</button>
-          </form>
-          <div class="row g-2 mt-3">
+
+            <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();">
+              <div class="mb-3">
+                  <label class="form-label small fw-bold text-muted">Username</label>
+                  <div class="input-group shadow-sm rounded">
+                      <span class="input-group-text bg-white border-end-0"><i class="fas fa-user text-primary"></i></span>
+                      <input type="text" class="form-control border-start-0 bg-white" id="uName" placeholder="Ketik username..." required>
+                  </div>
+              </div>
+              <div class="mb-4">
+                  <label class="form-label small fw-bold text-muted">Password</label>
+                  <div class="input-group shadow-sm rounded">
+                      <span class="input-group-text bg-white border-end-0"><i class="fas fa-lock text-primary"></i></span>
+                      <input type="password" class="form-control border-start-0 border-end-0 bg-white" id="uPass" placeholder="Ketik password..." required>
+                      <button class="btn btn-white border border-start-0 text-muted bg-white" type="button" onclick="togglePassword()">
+                          <i class="fas fa-eye" id="eyeIcon"></i>
+                      </button>
+                  </div>
+              </div>
+              <button type="submit" id="btnLogin" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-lg hover-scale text-uppercase" style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border: none;">Login Sistem</button>
+            </form>
+            
+            <div class="row g-2 mt-4 pt-3 border-top border-secondary border-opacity-25">
                 <div class="col-6">
-                    <a id="btn-dl-win" href="#" target="_blank" class="btn btn-outline-secondary w-100 py-2 small fw-bold d-none" style="font-size: 12px; border-radius: 10px;">
-                        <i class="fab fa-windows text-info"></i> App Windows
+                    <a id="btn-dl-win" href="#" target="_blank" class="btn btn-outline-secondary w-100 py-2 small fw-bold d-none rounded-pill bg-white shadow-sm" style="font-size: 11px;">
+                        <i class="fab fa-windows text-info fa-lg"></i> App Windows
                     </a>
                 </div>
                 <div class="col-6">
-                    <a id="btn-dl-and" href="#" target="_blank" class="btn btn-outline-success w-100 py-2 small fw-bold d-none" style="font-size: 12px; border-radius: 10px;">
-                        <i class="fab fa-android text-success"></i> App Android
+                    <a id="btn-dl-and" href="#" target="_blank" class="btn btn-outline-success w-100 py-2 small fw-bold d-none rounded-pill bg-white shadow-sm" style="font-size: 11px;">
+                        <i class="fab fa-android text-success fa-lg"></i> App Android
                     </a>
                 </div>
             </div>
-
-<footer class="mt-4 small container">
-  <div class="text-center text-muted mb-2">
-     <span id="login-footer-text">© 2006 SiE-MPuS | All Rights Reserved.</span>
-  </div>
-
-  <div class="d-flex justify-content-between align-items-center border-top pt-2">
-    <div>
-       <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivasi" class="text-decoration-none text-primary fw-bold" style="font-size: 11px;">
-         <i class="fas fa-shield-alt me-1"></i>Kebijakan Privasi</a>
-    </div>
-
-    <div class="text-muted text-end" style="font-size: 11px;">
-       Powered by : <a href='https://www.farypin-inovasiteknologi.com' rel='dofollow' class="fw-bold" style='color:blue; text-decoration:none;'>PT Farypin Inovasi Teknologi</a>
-    </div>
-  </div>
-</footer>
-
+          </div>
+          
         </div>
       </div>
     </div>
+          
 
     <div id="main-app" class="d-none">
 
@@ -489,14 +567,30 @@ input, button, select, textarea {
                      <div class="glass-card p-4 h-100">
                         <h5 class="fw-bold text-primary mb-3"><i class="fas fa-sliders-h me-2"></i>Aturan & Identitas</h5>
                         <form id="formConfig">
-                           <div class="mb-2"><label for="cfgNama" class="small fw-bold">Nama Sekolah</label><input type="text" id="cfgNama" class="form-control"></div>
-                           
-                           <div class="mb-3 bg-light p-2 rounded border">
-                               <label class="small fw-bold text-primary">Upload Logo Sekolah (1:1)</label>
-                               <input type="file" id="fileLogo" class="form-control form-control-sm" accept="image/*">
-                               <input type="hidden" id="cfgLogo"> <img id="previewLogo" src="" class="mt-2 rounded" style="max-height: 60px; display:none;">
+                           <div class="row mb-2">
+                             <div class="col-md-6"><label for="cfgInstansi" class="small fw-bold">Nama Instansi Atas</label><input type="text" id="cfgInstansi" class="form-control" placeholder="Misal: Dinas Pendidikan..."></div>
+                             <div class="col-md-6"><label for="cfgNama" class="small fw-bold">Nama Sekolah</label><input type="text" id="cfgNama" class="form-control" placeholder="Misal: SMAN 1..."></div>
                            </div>
                            
+                           <div class="mb-3"><label for="cfgAlamat" class="small fw-bold">Alamat Lengkap Sekolah</label><textarea id="cfgAlamat" class="form-control" rows="2" placeholder="Jln. Raya Pendidikan No..."></textarea></div>
+                           
+                           <div class="row mb-3">
+                               <div class="col-md-6">
+                                   <div class="bg-light p-2 rounded border h-100">
+                                       <label class="small fw-bold text-primary">Upload Logo Instansi (1:1)</label>
+                                       <input type="file" id="fileLogoInstansi" class="form-control form-control-sm mb-2" accept="image/*">
+                                       <input type="hidden" id="cfgLogoInstansi"> <img id="previewLogoInstansi" src="" class="rounded" style="max-height: 50px; display:none;">
+                                   </div>
+                               </div>
+                               <div class="col-md-6 mt-2 mt-md-0">
+                                   <div class="bg-light p-2 rounded border h-100">
+                                       <label class="small fw-bold text-primary">Upload Logo Sekolah (1:1)</label>
+                                       <input type="file" id="fileLogo" class="form-control form-control-sm mb-2" accept="image/*">
+                                       <input type="hidden" id="cfgLogo"> <img id="previewLogo" src="" class="rounded" style="max-height: 50px; display:none;">
+                                   </div>
+                               </div>
+                           </div>
+
                            <div class="mb-3 bg-light p-2 rounded border">
                                <label class="small fw-bold text-primary">Upload Background Login (5:3)</label>
                                <input type="file" id="fileBg" class="form-control form-control-sm" accept="image/*">
@@ -507,15 +601,17 @@ input, button, select, textarea {
                                <div class="col-6 mb-2"><label for="cfgHp" class="small fw-bold">No. HP/WA</label><input type="text" id="cfgHp" class="form-control"></div>
                                <div class="col-6 mb-2"><label for="cfgWeb" class="small fw-bold">Website</label><input type="text" id="cfgWeb" class="form-control"></div>
                            </div>
-                           <div class="mb-2"><label for="cfgEmail" class="small fw-bold">Email</label><input type="text" id="cfgEmail" class="form-control"></div>
-                           
-                           <div class="mb-2"><label for="cfgFolder" class="small fw-bold">ID Folder Drive (Penyimpanan Foto)</label><input type="text" id="cfgFolder" class="form-control" placeholder="Kosongkan jika auto-create"></div>
+                           <div class="row">
+                               <div class="col-6 mb-2"><label for="cfgEmail" class="small fw-bold">Email</label><input type="text" id="cfgEmail" class="form-control"></div>
+                               <div class="col-6 mb-2"><label for="cfgFolder" class="small fw-bold">ID Folder Drive</label><input type="text" id="cfgFolder" class="form-control" placeholder="Kosongkan jika auto"></div>
+                           </div>
                            
                            <div class="mb-2"><label for="cfgRun" class="small fw-bold">Running Text</label><textarea id="cfgRun" class="form-control" rows="2"></textarea></div>
+                           
                            <div class="row">
-                         <div class="col-6 mb-2"><label for="cfgUrlWin" class="small fw-bold text-info"><i class="fab fa-windows"></i> Link App Windows</label><input type="text" id="cfgUrlWin" class="form-control" placeholder="https://..."></div>
-                      <div class="col-6 mb-2"><label for="cfgUrlAnd" class="small fw-bold text-success"><i class="fab fa-android"></i> Link App Android</label><input type="text" id="cfgUrlAnd" class="form-control" placeholder="https://..."></div>
-                        </div>
+                               <div class="col-6 mb-2"><label for="cfgUrlWin" class="small fw-bold text-info"><i class="fab fa-windows"></i> Link App Windows</label><input type="text" id="cfgUrlWin" class="form-control" placeholder="https://..."></div>
+                               <div class="col-6 mb-2"><label for="cfgUrlAnd" class="small fw-bold text-success"><i class="fab fa-android"></i> Link App Android</label><input type="text" id="cfgUrlAnd" class="form-control" placeholder="https://..."></div>
+                           </div>
                            <div class="row">
                               <div class="col-6"><label for="cfgDenda" class="small fw-bold">Denda (Rp)</label><input type="number" id="cfgDenda" class="form-control"></div>
                               <div class="col-6"><label for="cfgDurasi" class="small fw-bold">Durasi (Hari)</label><input type="number" id="cfgDurasi" class="form-control"></div>
@@ -524,6 +620,7 @@ input, button, select, textarea {
                         </form>
                      </div>
                   </div>
+                  
                   <div class="col-md-6">
                      <div class="glass-card p-4 h-100">
                         <h5 class="fw-bold text-danger mb-3"><i class="fas fa-user-lock me-2"></i>Akun Admin</h5>
@@ -531,33 +628,56 @@ input, button, select, textarea {
                         <form id="formUser">
                            <div class="mb-2"><label for="accUser" class="small fw-bold">Username Baru</label><input type="text" id="accUser" class="form-control"></div>
                           <div class="mb-2">
-    <label for="accPass" class="small fw-bold">Password Baru</label>
-    <div class="input-group">
-        <input type="password" id="accPass" class="form-control">
-        <button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPassword()" title="Lihat Password">
-            <i class="fas fa-eye" id="eyeIconAdmin"></i>
-        </button>
-    </div>
-</div>
-                           <button type="button" class="btn btn-danger w-100 mt-3 rounded-pill" onclick="updateAccount()">UPDATE AKUN</button>
+                                <label for="accPass" class="small fw-bold">Password Baru</label>
+                                <div class="input-group">
+                                    <input type="password" id="accPass" class="form-control">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="toggleAdminPassword()" title="Lihat Password">
+                                        <i class="fas fa-eye" id="eyeIconAdmin"></i>
+                                    </button>
+                                </div>
+                            </div>
+                           <button type="button" class="btn btn-danger w-100 mt-3 py-2 rounded-pill fw-bold shadow-sm" onclick="updateAccount()">UPDATE AKUN</button>
                         </form>
                      </div>
                   </div>
+                  
                </div>
             </div>
 
             <div id="page-buku" class="page-section d-none">
                 <div class="glass-card p-4">
-                    <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
-                        <h5 class="fw-bold text-primary">Data Buku</h5>
-                        <div class="btn-group">
-    <button class="btn btn-info btn-sm text-white" onclick="printAllLabels()" title="Cetak Semua Barcode"><i class="fas fa-print"></i> Cetak Semua</button>
-    <button class="btn btn-success btn-sm" onclick="downloadTemplate('buku')" title="Download Template"><i class="fas fa-download"></i> Template Import</button>
-    <button class="btn btn-success btn-sm" onclick="triggerImport('buku')" title="Import Excel"><i class="fas fa-file-upload"></i> Import</button>
-    <button class="btn btn-secondary btn-sm" onclick="exportData('buku')" title="Export Data"><i class="fas fa-file-export"></i> Export</button>
-    <button class="btn btn-primary btn-sm" onclick="openBookModal()"><i class="fas fa-plus"></i> Data Baru</button>
+                    <div class="d-flex flex-column gap-3 mb-4 w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-primary mb-0">Data Buku</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm shadow-sm fw-bold" onclick="openImportModal('buku')">
+                                    <i class="fas fa-file-upload"></i> Import Excel
+                                </button>
+                                <button class="btn btn-primary btn-sm shadow-sm fw-bold" onclick="openBookModal()">
+                                    <i class="fas fa-plus"></i> Tambah Buku
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center bg-light p-2 rounded border gap-2">
+    <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+        <label class="small fw-bold text-muted mb-0"><i class="fas fa-filter"></i> Tahun:</label>
+        <div class="input-group input-group-sm" style="max-width: 250px;">
+            <input type="number" id="filterTahunExport" class="form-control" placeholder="Ketik Tahun">
+            <button class="btn btn-primary fw-bold" onclick="applyFilterBuku()"><i class="fas fa-search"></i> Terapkan</button>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-info btn-sm text-white shadow-sm fw-bold" onclick="printAllLabels()">
+            <i class="fas fa-print"></i> Cetak Semua
+        </button>
+        <button class="btn btn-secondary btn-sm shadow-sm fw-bold" onclick="exportData('buku')">
+            <i class="fas fa-file-export"></i> Export
+        </button>
+    </div>
 </div>
                     </div>
+      
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
@@ -582,14 +702,34 @@ input, button, select, textarea {
 
             <div id="page-anggota" class="page-section d-none">
                 <div class="glass-card p-4">
-                    <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
-                        <h5 class="fw-bold text-primary">Data Anggota</h5>
-                        <div class="btn-group">
-    <button class="btn btn-info btn-sm text-white" onclick="printAllCards()" title="Cetak Semua Kartu"><i class="fas fa-print"></i> Cetak Semua</button>
-    <button class="btn btn-success btn-sm" onclick="downloadTemplate('anggota')" title="Download Template"><i class="fas fa-download"></i> Template Import</button>
-    <button class="btn btn-success btn-sm" onclick="triggerImport('anggota')" title="Import Excel"><i class="fas fa-file-upload"></i> Import</button>
-    <button class="btn btn-secondary btn-sm" onclick="exportData('anggota')" title="Export Data"><i class="fas fa-file-export"></i> Export</button>
-    <button class="btn btn-primary btn-sm" onclick="openMemberModal()"><i class="fas fa-plus"></i> Data Baru</button>
+                    <div class="d-flex flex-column gap-3 mb-4 w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-primary mb-0">Data Anggota</h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm shadow-sm fw-bold" onclick="openImportModal('anggota')">
+                                    <i class="fas fa-file-upload"></i> Import Excel
+                                </button>
+                                <button class="btn btn-primary btn-sm shadow-sm fw-bold" onclick="openMemberModal()">
+                                    <i class="fas fa-plus"></i> Tambah Anggota
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center bg-light p-2 rounded border gap-2">
+    <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+        <label class="small fw-bold text-muted mb-0"><i class="fas fa-filter"></i> Kelas:</label>
+        <select id="filterKelasExport" class="form-select form-select-sm" style="min-width: 150px;" onchange="applyFilterAnggota()">
+            <option value="">Memuat Kelas...</option>
+        </select>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-info btn-sm text-white shadow-sm fw-bold" onclick="printAllCards()">
+            <i class="fas fa-print"></i> Cetak Semua
+        </button>
+        <button class="btn btn-secondary btn-sm shadow-sm fw-bold" onclick="exportData('anggota')">
+            <i class="fas fa-file-export"></i> Export
+        </button>
+    </div>
 </div>
                     </div>
                     <div class="table-responsive">
@@ -702,7 +842,7 @@ input, button, select, textarea {
                 </div>
                 <div class="modal-body">
                     <form id="formAnggota">
-                        <div class="mb-2"><label for="mId">ID/NISN</label><input type="text" class="form-control" id="mId" required></div>
+                        <div class="mb-2"><label for="mId">ID/NISN</label> <input type="text" class="form-control" id="mId" onblur="formatNISN()" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10" required></div>
                         <div class="mb-2"><label for="mNama">Nama</label><input type="text" class="form-control" id="mNama" required></div>
                         <div class="row mb-2">
                             <div class="col-6"><label for="mKelas">Kelas</label><input type="text" class="form-control" id="mKelas" required></div>
@@ -773,6 +913,30 @@ input, button, select, textarea {
     </div>
 </div>
 
+<div class="modal fade" id="modalImport" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-file-excel me-2"></i>Import Data <span id="importTitle"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-cloud-upload-alt fa-4x text-success mb-3"></i>
+                    <p class="text-muted small mb-4">Pastikan format data di Excel sudah sesuai dengan template sebelum melakukan upload agar tidak terjadi error.</p>
+                    
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-outline-success fw-bold py-2" onclick="downloadCurrentTemplate()">
+                            <i class="fas fa-download me-2"></i>1. Unduh Template Excel
+                        </button>
+                        <button class="btn btn-success fw-bold py-2 shadow-sm" onclick="triggerActualImport()">
+                            <i class="fas fa-upload me-2"></i>2. Upload File Excel (Import)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div id="pwa-install-banner" class="shadow-lg bg-white" 
     style="position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; border-radius: 20px 20px 0 0; padding: 15px 20px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); transform: translateY(150%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: space-between;">
     
@@ -817,8 +981,8 @@ const myButton = document.getElementById("btn-back-to-top");
 
 // 1. Buat "Buku Telepon" yang berisi daftar sekolah dan link Backend-nya masing-masing
 const daftarSekolah = {
-    "sman5tebo": "https://script.google.com/macros/s/AKfycbyvyBYkpovqyZ5FBKgQg4tYceZdmo0ObKRd5b6ULq5oXFo35BiBQcap0-6MhiBoHNHU/exec",
-    "demo": "https://script.google.com/a/macros/admin.sma.belajar.id/s/AKfycbyiXvHstJ7D_z7H1yFf6g1MNw5WT5NnNQT3uhw0ZfskjmedBxwLzK8W5soLtO8qPu2C8Q/exec"
+    "sman5tebo": "https://script.google.com/macros/s/AKfycbwX0vNiVka6uOtpTrQ4OA7pBMDIj9P3FZABIcDA0brpO6urXdsunVo-wTYSOKmUkYx0/exec",
+    "demo": "https://script.google.com/a/macros/admin.sma.belajar.id/s/...../exec"
 };
 
 // 2. Baca parameter ?id= dari URL browser
@@ -919,6 +1083,7 @@ let cropperInstance = null;
 let currentCropTarget = ''; 
 let uploadBgBase64 = null; 
 let uploadLogoBase64 = null; 
+let uploadLogoInstansiBase64 = null;
 
 // --- FITUR BARU: ANIMASI LOADING HITUNG MUNDUR ---
 let swalCountdownInterval;
@@ -1069,6 +1234,7 @@ function processExportHistory(start, end) {
 
 // --- LOGIKA CROPPER ---
 document.getElementById('fileLogo').addEventListener('change', function(e) { openCropper(e, 'logo', 1/1); });
+document.getElementById('fileLogoInstansi').addEventListener('change', function(e) { openCropper(e, 'logoInstansi', 1/1); });
 document.getElementById('fileBg').addEventListener('change', function(e) { openCropper(e, 'bg', 5/3); });
 
 function openCropper(e, target, ratio) {
@@ -1092,16 +1258,20 @@ function openCropper(e, target, ratio) {
 
 document.getElementById('btnApplyCrop').addEventListener('click', function() {
     if(!cropperInstance) return;
-    if(currentCropTarget === 'logo') {
+    if(currentCropTarget === 'logo' || currentCropTarget === 'logoInstansi') {
         const canvas = cropperInstance.getCroppedCanvas({ width: 400, height: 400 });
-        uploadLogoBase64 = canvas.toDataURL('image/png'); 
-        document.getElementById('previewLogo').src = uploadLogoBase64; 
-        document.getElementById('previewLogo').style.display = 'block';
+        const resultBase64 = canvas.toDataURL('image/png'); 
+        if (currentCropTarget === 'logo') {
+            uploadLogoBase64 = resultBase64; 
+            document.getElementById('previewLogo').src = uploadLogoBase64; document.getElementById('previewLogo').style.display = 'block';
+        } else {
+            uploadLogoInstansiBase64 = resultBase64; 
+            document.getElementById('previewLogoInstansi').src = uploadLogoInstansiBase64; document.getElementById('previewLogoInstansi').style.display = 'block';
+        }
     } else {
         const canvas = cropperInstance.getCroppedCanvas({ width: 1280, height: 768 });
         uploadBgBase64 = canvas.toDataURL('image/jpeg', 0.8); 
-        document.getElementById('previewBg').src = uploadBgBase64; 
-        document.getElementById('previewBg').style.display = 'block';
+        document.getElementById('previewBg').src = uploadBgBase64; document.getElementById('previewBg').style.display = 'block';
     }
     bootstrap.Modal.getInstance(document.getElementById('modalCrop')).hide();
 });
@@ -1140,7 +1310,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Memuat Pengaturan dari Database
     loadAppConfig();
-    
+    initDropdownKelas();
+
     const toggleBtn = document.getElementById('btn-toggle-menu');
     if(toggleBtn){
         toggleBtn.onclick = () => { 
@@ -1215,62 +1386,70 @@ function loadAppConfig() {
     google.script.run
         .withFailureHandler(err => console.log("Gagal memuat config:", err))
         .withSuccessHandler(cfg => {
-        const logoSrc = cfg.UrlLogo || cfg.LogoBase64;
+        const logoSrc = cfg.UrlLogo || cfg.LogoBase64; 
         const bgSrc = cfg.UrlBackground;
+        const logoInstansiSrc = cfg.UrlLogoInstansi;
 
+        const fallback = 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png';
         if(logoSrc) {
             globalLogoUrl = logoSrc; 
-            const l1 = document.getElementById('login-logo');
-            const l2 = document.getElementById('sidebar-logo');
-            const l3 = document.getElementById('login-logo-center');
-            const fallback = 'https://cdn-icons-png.flaticon.com/512/2232/2232688.png';
-            if(l1) { l1.src = logoSrc; l1.onerror = () => l1.src = fallback; }
+            const l2 = document.getElementById('sidebar-logo'); const l3 = document.getElementById('login-logo-sekolah');
             if(l2) { l2.src = logoSrc; l2.onerror = () => l2.src = fallback; }
             if(l3) { l3.src = logoSrc; l3.onerror = () => l3.src = fallback; }
-            const pLogo = document.getElementById('previewLogo');
-            if(pLogo && logoSrc.length > 5) { pLogo.src = logoSrc; pLogo.style.display = 'block'; }
+            const pLogo = document.getElementById('previewLogo'); if(pLogo && logoSrc.length > 5) { pLogo.src = logoSrc; pLogo.style.display = 'block'; }
+            const mLogo = document.getElementById('mobile-logo-img'); if(mLogo) { mLogo.src = logoSrc; mLogo.onerror = () => mLogo.src = fallback; }
+        }
+        
+        if(logoInstansiSrc) {
+            const lInstansi = document.getElementById('login-logo-instansi');
+            if(lInstansi) { lInstansi.src = logoInstansiSrc; lInstansi.onerror = () => lInstansi.src = fallback; }
+            const pLogoIns = document.getElementById('previewLogoInstansi'); if(pLogoIns && logoInstansiSrc.length > 5) { pLogoIns.src = logoInstansiSrc; pLogoIns.style.display = 'block'; }
         }
         
         if(cfg.NamaSekolah) {
-            const n1 = document.getElementById('login-school-name');
-            const n2 = document.getElementById('sidebar-school-name');
-            if(n1) n1.textContent = cfg.NamaSekolah;
-            if(n2) n2.textContent = cfg.NamaSekolah;
+            const n1 = document.getElementById('login-school-name'); const n2 = document.getElementById('sidebar-school-name'); const mText = document.getElementById('mobile-school-text');
+            if(n1) n1.textContent = cfg.NamaSekolah; if(n2) n2.textContent = cfg.NamaSekolah; if(mText) mText.textContent = cfg.NamaSekolah;
             document.title = cfg.NamaSekolah + ' - Library';
         }
         
-        // --- FITUR BARU: FOOTER OTOMATIS BERDASARKAN NAMA SEKOLAH ---
+        if(cfg.NamaInstansi) {
+            const insText = document.getElementById('login-instansi-name');
+            if(insText) insText.textContent = cfg.NamaInstansi;
+        }
+
+        if(cfg.AlamatSekolah) {
+            const alamatText = document.getElementById('login-alamat-text');
+            if(alamatText) alamatText.textContent = cfg.AlamatSekolah;
+        }
+        
         const namaSekolahFooter = cfg.NamaSekolah || 'Sistem E Manajemen Perpustakaan Sekolah';
         const footerTeksOtomatis = `© 2026 SiE-MPuS ${namaSekolahFooter}. Hak Cipta Dilindungi.`;
-        const f1 = document.getElementById('login-footer-text');
-        const f2 = document.getElementById('sidebar-footer-text');
-        if(f1) f1.innerHTML = footerTeksOtomatis;
-        if(f2) f2.innerHTML = footerTeksOtomatis;
+        const f1 = document.getElementById('login-footer-text'); const f2 = document.getElementById('sidebar-footer-text');
+        if(f1) f1.innerHTML = footerTeksOtomatis; if(f2) f2.innerHTML = footerTeksOtomatis;
         
-        // --- FITUR BARU: MENAMPILKAN TOMBOL DOWNLOAD JIKA URL ADA ---
-        const btnWin = document.getElementById('btn-dl-win');
-        const btnAnd = document.getElementById('btn-dl-and');
-        if(btnWin && cfg.UrlWindows && cfg.UrlWindows.length > 5) {
-            btnWin.href = cfg.UrlWindows;
-            btnWin.classList.remove('d-none'); // Munculkan tombol Windows
-        }
-        if(btnAnd && cfg.UrlAndroid && cfg.UrlAndroid.length > 5) {
-            btnAnd.href = cfg.UrlAndroid;
-            btnAnd.classList.remove('d-none'); // Munculkan tombol Android
-        }
+        const btnWin = document.getElementById('btn-dl-win'); const btnAnd = document.getElementById('btn-dl-and');
+        if(btnWin && cfg.UrlWindows && cfg.UrlWindows.length > 5) { btnWin.href = cfg.UrlWindows; btnWin.classList.remove('d-none'); }
+        if(btnAnd && cfg.UrlAndroid && cfg.UrlAndroid.length > 5) { btnAnd.href = cfg.UrlAndroid; btnAnd.classList.remove('d-none'); }
         
-        if(cfg.RunningText) {
-            const rt = document.getElementById('login-running-text');
-            if(rt) rt.textContent = cfg.RunningText;
-        }
-        
-        if(bgSrc) {
-            const la = document.getElementById('login-app');
-            if(la) la.style.backgroundImage = `url('${bgSrc}')`;
-            const pBg = document.getElementById('previewBg');
-            if(pBg && bgSrc.length > 5) { pBg.src = bgSrc; pBg.style.display = 'block'; }
-        }
+        if(cfg.RunningText) { const rt = document.getElementById('login-running-text'); if(rt) rt.textContent = cfg.RunningText; }
+        if(bgSrc) { const la = document.getElementById('login-app'); if(la) la.style.backgroundImage = `url('${bgSrc}')`; const pBg = document.getElementById('previewBg'); if(pBg && bgSrc.length > 5) { pBg.src = bgSrc; pBg.style.display = 'block'; } }
     }).getAppConfig();
+}
+
+function switchLoginPanel(direction) {
+    const leftPanel = document.getElementById('panel-left-mobile');
+    const rightPanel = document.getElementById('panel-right-mobile');
+    if (direction === 'right') {
+        leftPanel.classList.add('d-none');
+        leftPanel.classList.remove('d-flex');
+        rightPanel.classList.remove('d-none');
+        rightPanel.classList.add('d-flex');
+    } else {
+        rightPanel.classList.add('d-none');
+        rightPanel.classList.remove('d-flex');
+        leftPanel.classList.remove('d-none');
+        leftPanel.classList.add('d-flex');
+    }
 }
 
 // ==========================================================
@@ -1565,13 +1744,27 @@ function loadBooks(q='') {
 function renderBooks() {
     const tb = document.getElementById('book-list-body'); tb.innerHTML = '';
     if(bookData.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="text-center">Tidak ada data.</td></tr>'; document.getElementById('book-page-info').innerText = '0-0 dari 0'; return; }
+    
     bookData.forEach(r => {
         const sisa = (r[7] !== undefined && r[7] !== "") ? r[7] : r[6]; 
         const judulAman = r[1].replace(/'/g, "\\'").replace(/"/g, "&quot;");
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td class="font-monospace text-primary fw-bold">' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[3] + '</td><td class="text-center text-muted">' + r[6] + '</td><td class="text-center fw-bold text-success">' + sisa + '</td><td class="text-end"><button class="btn btn-sm btn-outline-success me-1" onclick="processDownloadLabel(\'' + r[0] + '\',\'' + judulAman + '\')"><i class="fas fa-file-image"></i></button><button class="btn btn-sm text-info" onclick="printLabel(\'' + r[0] + '\',\'' + judulAman + '\')"><i class="fas fa-print"></i></button><button class="btn btn-sm text-warning" onclick="editBook(\'' + r[0] + '\')"><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="delBook(\'' + r[0] + '\')"><i class="fas fa-trash"></i></button></td>';
+        
+        // Kita tambahkan div.text-clamp-2 untuk judul buku, dan .nowrap-cell untuk aksi
+        tr.innerHTML = '<td class="font-monospace text-primary fw-bold">' + r[0] + '</td>' + 
+                       '<td><div class="text-clamp-2" title="' + r[1] + '">' + r[1] + '</div></td>' + 
+                       '<td class="nowrap-cell">' + r[3] + '</td>' + 
+                       '<td class="text-center text-muted">' + r[6] + '</td>' + 
+                       '<td class="text-center fw-bold text-success">' + sisa + '</td>' + 
+                       '<td class="text-end nowrap-cell">' + 
+                           '<button class="btn btn-sm btn-outline-success me-1" onclick="processDownloadLabel(\'' + r[0] + '\',\'' + judulAman + '\')"><i class="fas fa-file-image"></i></button>' + 
+                           '<button class="btn btn-sm text-info me-1" onclick="printLabel(\'' + r[0] + '\',\'' + judulAman + '\')"><i class="fas fa-print"></i></button>' + 
+                           '<button class="btn btn-sm text-warning me-1" onclick="editBook(\'' + r[0] + '\')"><i class="fas fa-edit"></i></button>' + 
+                           '<button class="btn btn-sm text-danger" onclick="delBook(\'' + r[0] + '\')"><i class="fas fa-trash"></i></button>' + 
+                       '</td>';
         tb.appendChild(tr);
     });
+    
     const start = (bookPage-1)*rowsPerPage + 1;
     const end = Math.min(start + bookData.length - 1, bookTotal);
     document.getElementById('book-page-info').innerText = `${start}-${end} dari ${bookTotal}`;
@@ -1626,17 +1819,32 @@ function loadMembers(q='') {
 function renderMembers() {
     const tb = document.getElementById('member-list-body'); tb.innerHTML = '';
     if(memberData.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="text-center">Tidak ada data.</td></tr>'; document.getElementById('member-page-info').innerText = '0-0 dari 0'; return; }
+    
     memberData.forEach(r => {
         const tgl = safeDisplayDate(r[4]);
         const hp = r[5] ? r[5] : '-';
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + hp + '</td><td>' + tgl + '</td><td class="text-end"><button class="btn btn-sm btn-outline-success me-1" onclick="processDownloadCard(\'' + r[0] + '\')"><i class="fas fa-file-image"></i></button><button class="btn btn-sm text-info" onclick="printCard(\'' + r[0] + '\')"><i class="fas fa-id-card"></i></button><button class="btn btn-sm text-warning" onclick="editMember(\'' + r[0] + '\')"><i class="fas fa-edit"></i></button><button class="btn btn-sm text-danger" onclick="delMember(\'' + r[0] + '\')"><i class="fas fa-trash"></i></button></td>';
+        
+        // Kita tambahkan div.text-clamp-2 untuk Nama, dan .nowrap-cell untuk tgl & aksi
+        tr.innerHTML = '<td class="nowrap-cell">' + r[0] + '</td>' + 
+                       '<td><div class="text-clamp-2" title="' + r[1] + '">' + r[1] + '</div></td>' + 
+                       '<td class="nowrap-cell">' + r[2] + '</td>' + 
+                       '<td class="nowrap-cell">' + hp + '</td>' + 
+                       '<td class="nowrap-cell">' + tgl + '</td>' + 
+                       '<td class="text-end nowrap-cell">' + 
+                           '<button class="btn btn-sm btn-outline-success me-1" onclick="processDownloadCard(\'' + r[0] + '\')"><i class="fas fa-file-image"></i></button>' + 
+                           '<button class="btn btn-sm text-info me-1" onclick="printCard(\'' + r[0] + '\')"><i class="fas fa-id-card"></i></button>' + 
+                           '<button class="btn btn-sm text-warning me-1" onclick="editMember(\'' + r[0] + '\')"><i class="fas fa-edit"></i></button>' + 
+                           '<button class="btn btn-sm text-danger" onclick="delMember(\'' + r[0] + '\')"><i class="fas fa-trash"></i></button>' + 
+                       '</td>';
         tb.appendChild(tr);
     });
+    
     const start = (memberPage-1)*rowsPerPage + 1;
     const end = Math.min(start + memberData.length - 1, memberTotal);
     document.getElementById('member-page-info').innerText = `${start}-${end} dari ${memberTotal}`;
 }
+
 function prevMemberPage(){ if(memberPage>1){memberPage--; loadMembers();}}
 function nextMemberPage(){ if(memberPage*rowsPerPage < memberTotal){memberPage++; loadMembers();}}
 function openMemberModal(){ document.getElementById('formAnggota').reset(); document.getElementById('mId').readOnly=false; document.getElementById('mIsEdit').value='false'; document.getElementById('mOldId').value=''; new bootstrap.Modal(document.getElementById('modalAnggota')).show(); }
@@ -1772,64 +1980,92 @@ function prevRiwayatPage(){ if(historyPage>1){historyPage--; loadHistory();}}
 function nextRiwayatPage(){ if(historyPage*rowsPerPage < historyTotal){historyPage++; loadHistory();}}
 
 function loadSettingsForm() {
-    const inputs = document.querySelectorAll('#formConfig input, #formConfig textarea');
+    // Ambil semua kolom input form
+    const inputs = document.querySelectorAll('#formConfig input, #formConfig textarea, #formUser input');
+    
+    // KUNCI FORM SEMENTARA SAAT LOADING
     inputs.forEach(i => { i.disabled = true; i.style.opacity = '0.5'; });
+    
     google.script.run
-        .withFailureHandler(err => console.log(err))
+        .withFailureHandler(err => {
+            console.log(err);
+            inputs.forEach(i => { i.disabled = false; i.style.opacity = '1'; });
+        })
         .withSuccessHandler(cfg => {
-            document.getElementById('cfgNama').value = cfg.NamaSekolah || '';
-            document.getElementById('cfgLogo').value = cfg.UrlLogo || '';
-            document.getElementById('cfgBg').value = cfg.UrlBackground || ''; 
-            document.getElementById('cfgRun').value = cfg.RunningText || '';
-            // (cfgFoot Dihapus, diganti url Android & Windows)
-            document.getElementById('cfgUrlWin').value = cfg.UrlWindows || '';
-            document.getElementById('cfgUrlAnd').value = cfg.UrlAndroid || '';
+            // PAKAI TRY-CATCH: LINDUNGI DARI ERROR AGAR KUNCI PASTI TERBUKA
+            try {
+                if(document.getElementById('cfgNama')) document.getElementById('cfgNama').value = cfg.NamaSekolah || '';
+                if(document.getElementById('cfgInstansi')) document.getElementById('cfgInstansi').value = cfg.NamaInstansi || '';
+                if(document.getElementById('cfgAlamat')) document.getElementById('cfgAlamat').value = cfg.AlamatSekolah || '';
+                if(document.getElementById('cfgLogo')) document.getElementById('cfgLogo').value = cfg.UrlLogo || '';
+                if(document.getElementById('cfgLogoInstansi')) document.getElementById('cfgLogoInstansi').value = cfg.UrlLogoInstansi || '';
+                if(document.getElementById('cfgBg')) document.getElementById('cfgBg').value = cfg.UrlBackground || ''; 
+                if(document.getElementById('cfgRun')) document.getElementById('cfgRun').value = cfg.RunningText || '';
+                if(document.getElementById('cfgUrlWin')) document.getElementById('cfgUrlWin').value = cfg.UrlWindows || '';
+                if(document.getElementById('cfgUrlAnd')) document.getElementById('cfgUrlAnd').value = cfg.UrlAndroid || '';
+                if(document.getElementById('cfgDenda')) document.getElementById('cfgDenda').value = cfg.DendaPerHari || 500;
+                if(document.getElementById('cfgDurasi')) document.getElementById('cfgDurasi').value = cfg.DurasiPinjam || 7;
+                if(document.getElementById('cfgHp')) document.getElementById('cfgHp').value = cfg.NoHP || '';
+                if(document.getElementById('cfgWeb')) document.getElementById('cfgWeb').value = cfg.WebSekolah || '';
+                if(document.getElementById('cfgEmail')) document.getElementById('cfgEmail').value = cfg.EmailSekolah || '';
+                if(document.getElementById('cfgFolder')) document.getElementById('cfgFolder').value = cfg.IDFolderGambar || '';
+                if(document.getElementById('accUser')) document.getElementById('accUser').value = currentUsername;
+            } catch(e) {
+                console.log("Abaikan jika ada elemen yang tidak ditemukan: " + e);
+            }
             
-            document.getElementById('cfgDenda').value = cfg.DendaPerHari || 500;
-            document.getElementById('cfgDurasi').value = cfg.DurasiPinjam || 7;
-            document.getElementById('cfgHp').value = cfg.NoHP || '';
-            document.getElementById('cfgWeb').value = cfg.WebSekolah || '';
-            document.getElementById('cfgEmail').value = cfg.EmailSekolah || '';
-            document.getElementById('cfgFolder').value = cfg.IDFolderGambar || '';
-            document.getElementById('accUser').value = currentUsername;
+            // BUKA KEMBALI KUNCI FORM (DIJAMIN JALAN)
             inputs.forEach(i => { i.disabled = false; i.style.opacity = '1'; });
     }).getAppConfig();
 }
 
 function saveSettings() {
+    // 1. Amankan variabel gambar (kalau variabelnya lupa dipasang, anggap saja null biar gak crash)
+    const logoInstansiVal = typeof uploadLogoInstansiBase64 !== 'undefined' ? uploadLogoInstansiBase64 : null;
+    const logoVal = typeof uploadLogoBase64 !== 'undefined' ? uploadLogoBase64 : null;
+    const bgVal = typeof uploadBgBase64 !== 'undefined' ? uploadBgBase64 : null;
+
+    // 2. Tarik data dari form dengan aman (pakai tanda '?' supaya kalau ada kolom yang terhapus, webnya gak error)
     const data = {
-        namaSekolah: document.getElementById('cfgNama').value, 
-        urlLogo: document.getElementById('cfgLogo').value, 
-        urlBg: document.getElementById('cfgBg').value, 
-        uploadLogo: uploadLogoBase64, 
-        uploadBg: uploadBgBase64,     
-        runningText: document.getElementById('cfgRun').value, 
-        // Mengirim URL aplikasi ke Database (Bukan teks footer lagi)
-        urlWin: document.getElementById('cfgUrlWin').value, 
-        urlAnd: document.getElementById('cfgUrlAnd').value, 
-        
-        denda: document.getElementById('cfgDenda').value, 
-        durasi: document.getElementById('cfgDurasi').value, 
-        nohp: document.getElementById('cfgHp').value, 
-        website: document.getElementById('cfgWeb').value, 
-        email: document.getElementById('cfgEmail').value, 
-        idFolder: document.getElementById('cfgFolder').value
+        namaSekolah: document.getElementById('cfgNama')?.value || '', 
+        namaInstansi: document.getElementById('cfgInstansi')?.value || '', 
+        alamatSekolah: document.getElementById('cfgAlamat')?.value || '', 
+        urlLogo: document.getElementById('cfgLogo')?.value || '', 
+        urlLogoInstansi: document.getElementById('cfgLogoInstansi')?.value || '', 
+        urlBg: document.getElementById('cfgBg')?.value || '', 
+        uploadLogo: logoVal, 
+        uploadLogoInstansi: logoInstansiVal, 
+        uploadBg: bgVal, 
+        runningText: document.getElementById('cfgRun')?.value || '', 
+        urlWin: document.getElementById('cfgUrlWin')?.value || '', 
+        urlAnd: document.getElementById('cfgUrlAnd')?.value || '', 
+        denda: document.getElementById('cfgDenda')?.value || 0, 
+        durasi: document.getElementById('cfgDurasi')?.value || 0, 
+        nohp: document.getElementById('cfgHp')?.value || '', 
+        website: document.getElementById('cfgWeb')?.value || '', 
+        email: document.getElementById('cfgEmail')?.value || '', 
+        idFolder: document.getElementById('cfgFolder')?.value || ''
     };
     
-    let desc = 'Sedang memperbarui aturan dan identitas...';
-    if(uploadBgBase64 || uploadLogoBase64) desc = 'Sedang mengunggah file foto ke Google Drive...';
+    let desc = 'Sedang memperbarui aturan dan identitas...'; 
+    if(bgVal || logoVal || logoInstansiVal) desc = 'Sedang mengunggah file foto ke Google Drive...';
+    
     showSmartLoading('Menyimpan Pengaturan...', desc);
     
     google.script.run
         .withFailureHandler(handleNetworkError)
         .withSuccessHandler(res => { 
             if(res.status) { 
-                Swal.fire({title: 'Berhasil', text: 'Pengaturan tersimpan.', icon: 'success'}).then(() => {
-                    uploadBgBase64 = null; 
-                    uploadLogoBase64 = null;
+                Swal.fire({title: 'Berhasil', text: 'Pengaturan tersimpan.', icon: 'success'}).then(() => { 
+                    // Kosongkan memori gambar setelah sukses simpan
+                    if(typeof uploadBgBase64 !== 'undefined') uploadBgBase64 = null; 
+                    if(typeof uploadLogoBase64 !== 'undefined') uploadLogoBase64 = null; 
+                    if(typeof uploadLogoInstansiBase64 !== 'undefined') uploadLogoInstansiBase64 = null; 
                     loadAppConfig(); 
                 }); 
-            } else Swal.fire('Gagal', res.message, 'error'); 
+            } else {
+                Swal.fire('Gagal', res.message, 'error'); 
+            }
         }).saveAppConfig(data);
 }
 
@@ -1874,23 +2110,6 @@ function processImport(i){
                 i.value=''; 
         }).processExcelData(importType, XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}));
     }; r.readAsArrayBuffer(f);
-}
-
-function exportData(type) {
-    showSmartLoading('Mempersiapkan Unduhan...', 'Mengumpulkan ribuan baris data dari database.');
-    google.script.run
-        .withFailureHandler(handleNetworkError)
-        .withSuccessHandler(serverData => {
-            if (serverData.length === 0) { Swal.fire('Info', 'Belum ada data untuk diexport.', 'info'); return; }
-            let headers = []; let fileName = "";
-            if (type === 'buku') { headers = ["Kode Buku", "Judul", "Pengarang", "Penerbit", "Tahun", "Kategori", "Stok Total", "Stok Tersedia"]; fileName = "Data_Semua_Buku.xlsx"; } 
-            else { headers = ["ID/NISN", "Nama Lengkap", "Kelas", "Jenis Kelamin", "Tanggal Lahir", "No. HP"]; fileName = "Data_Semua_Anggota.xlsx"; }
-            const dataToExport = [headers, ...serverData]; 
-            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dataToExport); 
-            XLSX.utils.book_append_sheet(wb, ws, "Data Export"); 
-            XLSX.writeFile(wb, fileName);
-            Swal.close();
-    }).getAllDataForExport(type);
 }
 
 function printLabel(kode, judul) {
@@ -2054,141 +2273,7 @@ loadAppConfig = function() {
     }).getAppConfig();
 };
 
-// --- FITUR CETAK SEMUA BARCODE BUKU (A4 3x3) ---
-function printAllLabels() {
-    // 1. Tampilkan loading agar pengguna tahu sistem sedang memproses
-    showSmartLoading('Menyiapkan Barcode...', 'Mengambil semua data buku dan menyusun layout kertas A4.');
 
-    // 2. Panggil fungsi di GAS untuk ambil SEMUA data buku
-    google.script.run
-        .withFailureHandler(handleNetworkError)
-        .withSuccessHandler(allBooks => {
-            if (allBooks.length === 0) {
-                Swal.fire('Kosong', 'Belum ada data buku untuk dicetak.', 'info');
-                return;
-            }
-
-            // 3. Buat wadah sementara yang tersembunyi untuk membuat gambar QR Code
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            document.body.appendChild(tempDiv);
-
-            let htmlContent = `<div class="print-page">`;
-
-            // 4. Looping semua buku untuk membuat kotak-kotaknya
-            allBooks.forEach((b, index) => {
-                const kode = b[0]; // Kolom A: Kode Buku
-                const judul = b[1]; // Kolom B: Judul Buku
-
-                // Jika sudah 9 kotak, tutup halaman dan buat halaman baru
-                if (index > 0 && index % 9 === 0) {
-                    htmlContent += `</div><div class="print-page" style="page-break-before: always;">`;
-                }
-
-                // Desain per 1 kotak buku
-                htmlContent += `
-                    <div class="label-box">
-                        <div class="label-title">${judul}</div>
-                        <div class="label-kode">${kode}</div>
-                        <div id="qr-batch-${index}" class="qr-container"></div>
-                    </div>
-                `;
-            });
-            htmlContent += `</div>`;
-            tempDiv.innerHTML = htmlContent;
-
-            // 5. Generate QR Code ke dalam kotak masing-masing
-            allBooks.forEach((b, index) => {
-                new QRCode(document.getElementById(`qr-batch-${index}`), {
-                    text: b[0],
-                    width: 90,
-                    height: 90
-                });
-            });
-
-            // 6. Beri waktu 1 detik agar QR Code selesai digambar, lalu cetak
-            setTimeout(() => {
-                // Konversi canvas QrCode ke Gambar (agar tidak hilang saat di-print)
-                allBooks.forEach((b, index) => {
-                    const qrBox = document.getElementById(`qr-batch-${index}`);
-                    if (qrBox) {
-                        const canvas = qrBox.querySelector('canvas');
-                        const img = qrBox.querySelector('img');
-                        if (canvas && img) {
-                            img.src = canvas.toDataURL("image/png");
-                            img.style.display = "block";
-                            canvas.style.display = "none";
-                        }
-                    }
-                });
-
-                // 7. Buka jendela Print baru dengan CSS khusus A4 3x3
-                const printWindow = window.open('', '', 'height=800,width=1000');
-                const css = `
-                    <style>
-                        @page { size: A4; margin: 10mm; }
-                        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background: #fff; }
-                        .print-page {
-                            display: grid;
-                            grid-template-columns: repeat(3, 1fr);
-                            grid-template-rows: repeat(3, 1fr);
-                            gap: 10px;
-                            width: 190mm;  /* Lebar A4 dikurangi margin */
-                            height: 277mm; /* Tinggi A4 dikurangi margin */
-                            box-sizing: border-box;
-                        }
-                        .label-box {
-                            border: 2px solid #333;
-                            border-radius: 8px;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            text-align: center;
-                            padding: 10px;
-                            box-sizing: border-box;
-                            background: #fff;
-                            height: 100%;
-                        }
-                        .label-title {
-                            font-weight: bold;
-                            font-size: 13px;
-                            margin-bottom: 8px;
-                            max-height: 38px;
-                            overflow: hidden;
-                            line-height: 1.2;
-                        }
-                        .label-kode {
-                            background: #000;
-                            color: #fff;
-                            padding: 4px 10px;
-                            border-radius: 4px;
-                            font-size: 14px;
-                            font-weight: bold;
-                            margin-bottom: 12px;
-                            letter-spacing: 1px;
-                        }
-                        .qr-container img { margin: 0 auto; display: block; }
-                    </style>
-                `;
-
-                printWindow.document.write('<html><head><title>Cetak Semua Label Buku</title>' + css + '</head><body>');
-                printWindow.document.write(tempDiv.innerHTML);
-                printWindow.document.write('</body></html>');
-                printWindow.document.close();
-
-                // Bersihkan sistem
-                document.body.removeChild(tempDiv);
-                Swal.close();
-
-                // Panggil perintah print
-                setTimeout(() => { printWindow.print(); }, 500);
-
-            }, 1000); 
-
-        }).getAllDataForExport('buku'); // Kita memanfaatkan fungsi eksport yang sudah ada di Code.gs!
-}
 
 // ==========================================================
 // 1. FITUR CETAK SEMUA BARCODE BUKU (A4 3x3 + LOGO & QR BESAR)
@@ -2200,6 +2285,13 @@ function printAllLabels() {
         .withFailureHandler(handleNetworkError)
         .withSuccessHandler(allBooks => {
             if (allBooks.length === 0) { Swal.fire('Kosong', 'Belum ada data buku untuk dicetak.', 'info'); return; }
+
+            // FILTER TAHUN
+            const fTahun = document.getElementById('filterTahunExport').value.trim().toLowerCase();
+            if (fTahun && fTahun !== '') {
+                allBooks = allBooks.filter(b => String(b[4]).toLowerCase() === fTahun);
+            }
+            if (allBooks.length === 0) { Swal.fire('Kosong', 'Tidak ada buku di tahun tersebut.', 'info'); return; }
 
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'absolute'; tempDiv.style.left = '-9999px';
@@ -2291,6 +2383,12 @@ function printAllCards() {
         .withFailureHandler(handleNetworkError)
         .withSuccessHandler(allMembers => {
             if (allMembers.length === 0) { Swal.fire('Kosong', 'Belum ada data anggota.', 'info'); return; }
+            // FILTER KELAS
+            const fKelas = document.getElementById('filterKelasExport').value.trim().toLowerCase();
+            if (fKelas && fKelas !== '') {
+                allMembers = allMembers.filter(m => String(m[2]).toLowerCase() === fKelas);
+            }
+            if (allMembers.length === 0) { Swal.fire('Kosong', 'Tidak ada siswa di kelas tersebut.', 'info'); return; }
 
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'absolute'; tempDiv.style.left = '-9999px';
@@ -2558,6 +2656,133 @@ function buildDatabaseContext() {
 document.getElementById('ai-chat-input')?.addEventListener("keypress", function(event) { 
     if (event.key === "Enter") { event.preventDefault(); sendAIChat(); } 
 });
+
+// FITUR AUTO-LENGKAPI NISN 10 DIGIT
+function formatNISN() {
+    const inputEl = document.getElementById('mId');
+    let val = inputEl.value.trim();
+    
+    // Jika input tidak kosong dan kurang dari 10 digit
+    if (val !== "" && val.length < 10) {
+        // Tampilkan peringatan
+        Swal.fire({
+            icon: 'info',
+            title: 'Format NISN Disesuaikan',
+            text: `NISN wajib 10 digit. Sistem otomatis menambahkan angka 0 di depan data Anda.`,
+            timer: 3500, // Hilang otomatis dalam 3.5 detik
+            showConfirmButton: false
+        });
+        
+        // Tambahkan 0 di depan otomatis sampai pas 10 digit
+        inputEl.value = val.padStart(10, '0');
+    }
+}
+
+// --- LOGIKA MODAL IMPORT ---
+let currentImportTarget = '';
+function openImportModal(type) {
+    currentImportTarget = type;
+    document.getElementById('importTitle').innerText = type === 'buku' ? 'Buku' : 'Anggota';
+    new bootstrap.Modal(document.getElementById('modalImport')).show();
+}
+function downloadCurrentTemplate() {
+    downloadTemplate(currentImportTarget);
+}
+function triggerActualImport() {
+    bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+    triggerImport(currentImportTarget);
+}
+
+// --- UPDATE FUNGSI EXPORT (DENGAN FILTER) ---
+function exportData(type) {
+    showSmartLoading('Mempersiapkan Unduhan...', 'Menyaring data dari database.');
+    google.script.run
+        .withFailureHandler(handleNetworkError)
+        .withSuccessHandler(serverData => {
+            if (serverData.length === 0) { Swal.fire('Info', 'Belum ada data.', 'info'); return; }
+            
+            let targetData = serverData;
+            let headers = []; let fileName = "";
+            
+            // LOGIKA FILTER
+            if (type === 'buku') { 
+                headers = ["Kode Buku", "Judul", "Pengarang", "Penerbit", "Tahun", "Kategori", "Stok Total", "Stok Tersedia"]; 
+                fileName = "Data_Buku.xlsx"; 
+                
+                const fTahun = document.getElementById('filterTahunExport').value.trim().toLowerCase();
+                if (fTahun && fTahun !== '') {
+                    targetData = serverData.filter(b => String(b[4]).toLowerCase() === fTahun); // Kolom 4 = Tahun
+                    fileName = `Data_Buku_Tahun_${fTahun}.xlsx`;
+                }
+            } else { 
+                headers = ["ID/NISN", "Nama Lengkap", "Kelas", "Jenis Kelamin", "Tanggal Lahir", "No. HP"]; 
+                fileName = "Data_Anggota.xlsx"; 
+                
+                const fKelas = document.getElementById('filterKelasExport').value.trim().toLowerCase();
+                if (fKelas && fKelas !== '') {
+                    targetData = serverData.filter(m => String(m[2]).toLowerCase() === fKelas); // Kolom 2 = Kelas
+                    fileName = `Data_Anggota_Kelas_${fKelas}.xlsx`;
+                }
+            }
+            
+            if (targetData.length === 0) {
+                Swal.fire('Kosong', 'Tidak ada data yang cocok dengan filter tersebut.', 'info');
+                return;
+            }
+
+            const dataToExport = [headers, ...targetData]; 
+            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dataToExport); 
+            XLSX.utils.book_append_sheet(wb, ws, "Data Export"); 
+            XLSX.writeFile(wb, fileName);
+            Swal.close();
+    }).getAllDataForExport(type);
+}
+
+// ==========================================================
+// 🔍 PERBAIKAN FITUR FILTER TABEL (ANTI NGADAT)
+// ==========================================================
+
+// 1. Filter Buku (Presisi 100%)
+window.applyFilterBuku = function() {
+    const tahun = document.getElementById('filterTahunExport').value.trim();
+    const searchBox = document.querySelector('#page-buku .custom-search input');
+    if (searchBox) searchBox.value = '';
+    
+    bookPage = 1;
+    // Kirim sandi 'exact_tahun:' ke server
+    const query = tahun ? "exact_tahun:" + tahun : "";
+    loadBooks(query); 
+};
+
+// 2. Ambil Kelas Otomatis dari Database
+window.initDropdownKelas = function() {
+    google.script.run.withSuccessHandler(data => {
+        const select = document.getElementById('filterKelasExport');
+        if(!select) return;
+        
+        // Ambil data kelas dari kolom ke-2, saring yang kosong, urutkan A-Z
+        const uniqueKelas = [...new Set(data.map(item => String(item[2]).trim()))].filter(Boolean).sort();
+        
+        select.innerHTML = '<option value="">-- Semua Kelas --</option>';
+        uniqueKelas.forEach(k => {
+            select.innerHTML += `<option value="${k}">${k}</option>`;
+        });
+    }).getAllDataForExport('anggota');
+};
+
+// 3. Filter Anggota (Presisi 100%)
+window.applyFilterAnggota = function() {
+    const kelas = document.getElementById('filterKelasExport').value.trim();
+    const searchBox = document.querySelector('#page-anggota .custom-search input');
+    if (searchBox) searchBox.value = '';
+    
+    memberPage = 1;
+    document.getElementById('member-list-body').innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-success" role="status"></div><div class="mt-2 text-muted small">Menyaring Kelas...</div></td></tr>';
+    
+    // Kirim sandi 'exact_kelas:' ke server
+    const query = kelas ? "exact_kelas:" + kelas : "";
+    loadMembers(query); 
+};
 
 // ==========================================================
 // 📲 LOGIKA BANNER INSTALL PWA PROFESIONAL
